@@ -27,14 +27,24 @@ for (let i=0; i < allLinks.length; i++) {
 
   let visibleLabelColumnData = ''
   if (!cleanVisibleLabel) {
-    let text = 'no visible text'
+    let text;
     if (linkElement.querySelector('img') || linkElement.querySelector('svg')) {
-      text += ', graphic-only'
+      text = 'graphic-only'
+    } else {
+      text = 'no graphic or text'
     }
     visibleLabelColumnData = `<i>(${text})</i>`
   } else if (cleanVisibleLabel && cleanVisibleLabel !== cleanAccessibleName) {
-    visibleLabelColumnData = visibleLabel
-  }
+    if (!linkElement.querySelector('svg') || !linkElement.querySelector('img')) {
+      visibleLabelColumnData = visibleLabel
+    } else {
+      removeStyles(linkElement)
+      const linkElementWithVisibleElementsOnly = linkElement.cloneNode(true)
+      removeHiddenElements(linkElementWithVisibleElementsOnly);
+
+      visibleLabelColumnData = linkElementWithVisibleElementsOnly.innerHTML
+    }
+  } 
   array.push([accessibleName, visibleLabelColumnData, giveRecommendation(cleanVisibleLabel, cleanAccessibleName, linkElement), linkElement]);
 };
 
@@ -42,40 +52,81 @@ function linkTextIsTooShort(text) {
   return text.length > 0 && text.length <= 2;
 }
 
-function removePunctuation(text) {
-  return text.replace(/[.,/#!$%^&*;:{}=-_`~()]/g, "").replace(/s{2,}/g, " ");
+function removeHiddenElements(el) {
+  if (nonVisibleElement(el)) {
+    el.remove();
+  }
+
+  if (el.childNodes.length > 0) {
+    for(let child in el.childNodes) {
+        if(el.childNodes[child].nodeType == 1) {
+          removeHiddenElements(el.childNodes[child]);
+        }
+    }
+  }
+}
+
+function removeStyles(el) {
+  el.removeAttribute('style');
+
+  if(el.childNodes.length > 0) {
+    for(let child in el.childNodes) {
+        if(el.childNodes[child].nodeType == 1) {
+          removeStyles(el.childNodes[child]);
+        }
+    }
+  }
+}
+
+function removePunctuationAndEmoji(text) {
+  return text.replace(/[.,/#!$%^&*;:{}=-_`~()]/g, "").replace(/s{2,}/g, " ")
+    .replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '');
+}
+
+function nonVisibleElement(element) {
+  return !element.offsetWidth || !element.offsetHeight || !element.getClientRects().length || window.getComputedStyle(element).visibility === "hidden" || window.getComputedStyle(element).display === "none"
 }
 
 function stripAndDowncaseText(text) {
-  return text.replace(/\s+/g, ' ').trim().toLowerCase();
+  return text.replace(/\s+/g, ' ').toLowerCase().trim();
 }
 function giveRecommendation(cleanVisibleLabel, cleanAccessibleName, linkElement) {
-  let recommendation = '';
+  const veryCleanAccessibleName = stripAndDowncaseText(removePunctuationAndEmoji(cleanVisibleLabel));
+  const veryCleanVisibleLabel = stripAndDowncaseText(removePunctuationAndEmoji(cleanAccessibleName));
+  let recommendation = [];
   if (cleanAccessibleName === '') {
     if ( !linkElement.hasAttribute('aria-hidden')) {
-      recommendation+= '<p>[Missing accessible name]</p>';
+      recommendation.push('[Missing accessible name]')
     }
-  } if (!(cleanVisibleLabel === cleanAccessibleName) && !removePunctuation(cleanAccessibleName).match(new RegExp(`\\b${removePunctuation(cleanVisibleLabel)}\\b`))) {
-    recommendation+= '<p>[Accessible name must include the complete visible label]</p>'
+  } if (cleanVisibleLabel && !(cleanVisibleLabel === cleanAccessibleName)) {
+    if (linkElement.querySelector('svg') || linkElement.querySelector('img')) {
+      recommendation.push('Requires manual review.')
+    } else if (!veryCleanAccessibleName.match(new RegExp(`\\b${veryCleanVisibleLabel}\\b`))) {
+      recommendation.push('[Accessible name must include the complete visible label]')
+    }
   } if (cleanAccessibleName.match(new RegExp('\^\blink\\b'))) {
-    recommendation+= '<p>[`link` text in accessible name]</p>'
+    recommendation.push('[`link` text in accessible name]')
   } if (cleanAccessibleName.length > 125) {
-    recommendation+= '<p>[Very long accessible name]</p>'
+    recommendation.push('[Very long accessible name]')
   } if (linkTextIsTooShort(cleanAccessibleName)) {
-    recommendation += "<p>[Very short accessible name]</p>"
+    recommendation.push( "[Very short accessible name]")
   } if (linkElement.href === linkElement.textContent) {
-    recommendation += "<p>[Accessible name is a URL]</p>"
+    recommendation.push( "[Accessible name is a URL]")
   } if (cleanAccessibleName) {
   }
   return recommendation
 }
 
 function tableRow(accessibleName, visibleLabel, recommendation) {
-  return '<tr><td>' + accessibleName + '</td><td>' + visibleLabel + '</td><td>' + recommendation + '</td><td>' + '<button>Log to console of evaluated page</button>' + '</td></tr>';
+  let recommendationHTML = '';
+  for (let i=0; i < recommendation.length; i++) {
+    recommendationHTML += `<p">${recommendation[i]}</p>`
+  }
+  return '<tr><td>' + accessibleName + '</td><td>' + visibleLabel + '</td><td>' + recommendationHTML + '</td><td>' + '<button>Log to console of evaluated page</button>' + '</td></tr>';
 }
 
 function createReport(array) {
-  let table = '<table aria-describedby="table-note"><caption>Analysis of links on evaluated URL</caption><thead width="20%"><th>Accessible name</th><th width="20%">Visible label</th><th width="40%">Flag ⚠️</th><th width="20%">Element</th></thead><tbody>';
+  let table = '<table aria-describedby="table-note"><caption>Analysis of links on evaluated URL</caption><thead width="20%"><th>Accessible name</th><th width="20%">Visible label</th><th width="40%">Flag ⚠️</th><th width="20%">Log to console</th></thead><tbody>';
   for (let i=0; i<array.length; i++) {
     const row = tableRow(array[i][0], array[i][1], array[i][2]);
     table += row
@@ -90,7 +141,7 @@ function createReport(array) {
     const button = buttons[i];
     button.addEventListener('click', function () {
       console.log(array[i][3]);
-      console.log(array[i][2]);
+      console.log(array[i][2].join('\n'));
     })
   }
   w.document.head.insertAdjacentHTML("beforeend", `
@@ -100,6 +151,9 @@ function createReport(array) {
       }
       table {
         width: 100%;
+      }
+      svg, img {
+        width: 20px;
       }
       thead {
         background-color: #333;
@@ -140,13 +194,13 @@ function firstSection() {
     <h2>Guide</h2>
     <p>
       The table below lists the visible label and/or accessible name for all (non-hidden) links on the evaluated URL (<a href="${window.location.href}">${window.location.href}</a>).
-      Automatically detected, potential issues for each link are output in the "Flag ⚠️" column and should be reviewed.
+      Potential issues that are detected are output in the "Flag ⚠️" column and should be reviewed carefully.
     </p>
     <p>  
-      Assessing link accessibility always requires human judgement. In addition to reviewing the flagged issues, please make sure to assess whether the link text is meaningful.
+      Assessing link accessibility always requires human judgement. Even though some issues may appear under "Flagged", please be sure to use your human judgment to evaluate link text on qualities such as meaningfulness.
     </p>
     <h3>Things to assess</h3>
-    <h4>Not flagged by automation and requires human judgement</h4>
+    <h4>Requires heavy human judgement</h4>
     <details>
       <summary>Meaningful link text</summary>
       <p>It is best practice for link text to be meaningful on its own. It is required for  recommended practice for screen reader usability to ensure the link text is meaningful on its own.</p>
@@ -210,7 +264,7 @@ function firstSection() {
   <h2>Table - Analysis of links on evaluated URL</h2>
   <p id='table-note'>
     Column 2 (Visible label) will be empty if the label text is present and matches the accessible name.
-    Column 3 (Elements) includes a button that will allow further inspect of a given link element if necessary. Selecting the button will result in a console output of the element in the browser console of the original page allowing for further browser inspection.
+    Column 3 (Log to console) includes a button that will allow further inspect of a given link element if necessary. Selecting the button will result in a console output of the element in the browser console of the original page allowing for further browser inspection.
   </p>
   `
 }
