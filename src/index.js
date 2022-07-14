@@ -12,21 +12,17 @@ for (let i = 0; i < allLinks.length; i++) {
   // Get visual label, excluding screen reader only text.
   const visibleLabel = fetchVisibleLabel(linkElement);
 
-  const cleanVisibleLabel = stripAndDowncaseText(visibleLabel);
+  const cleanVisibleLabel = stripAndDowncaseText(visibleLabel.innerText);
   const cleanAccessibleName = stripAndDowncaseText(accessibleName);
 
   let visibleLabelColumnData = `<i>(same as accessible name)</i>`;
   if (!cleanVisibleLabel) {
-    const text =
-      linkElement.querySelector("img") || linkElement.querySelector("svg")
-        ? "graphic-only"
-        : "no visible label";
-    visibleLabelColumnData = `<i>(${text})</i>`;
+    visibleLabelColumnData = visibleLabel.innerHTML;
   } else if (cleanVisibleLabel && cleanVisibleLabel !== cleanAccessibleName) {
     if (linkElement.querySelector("svg") || linkElement.querySelector("img")) {
-      visibleLabelColumnData = `<b>${visibleLabel}</b> <i>(and graphic)</i>`;
+      visibleLabelColumnData = visibleLabel.innerHTML;
     } else {
-      visibleLabelColumnData = `<b>${visibleLabel}</b>`;
+      visibleLabelColumnData = `<b>${visibleLabel.innerText}</b>`;
     }
   }
   array.push([
@@ -37,8 +33,8 @@ for (let i = 0; i < allLinks.length; i++) {
   ]);
 }
 
-function nonTextualLinkText(text) {
-  return !text.match(RegExp(/[a-z0-9]+$/i));
+function containsAnyLetters(str) {
+  return /[a-zA-Z]/.test(str);
 }
 
 function removePunctuationAndEmoji(text) {
@@ -55,7 +51,7 @@ function fetchVisibleLabel(element) {
   const clonedLink = element.cloneNode(true);
   element.insertAdjacentElement("afterend", clonedLink);
   removeVisuallyHiddenElements(clonedLink);
-  const visibleLabel = clonedLink.innerText;
+  const visibleLabel = clonedLink;
   clonedLink.remove();
 
   return visibleLabel;
@@ -66,6 +62,7 @@ function removeVisuallyHiddenElements(el) {
   if (isScreenReaderOnly(el)) {
     el.remove();
   }
+  el.removeAttribute("style");
 
   if (el.childNodes.length > 0) {
     for (let child in el.childNodes) {
@@ -139,9 +136,9 @@ function giveRecommendation(
   if (cleanAccessibleName.length > 300) {
     recommendation.push("[Very long accessible name]");
   }
-  // if (nonTextualLinkText(cleanAccessibleName)) {
-  //   recommendation.push( "[Accessible name contains no textual content]")
-  // }
+  if (!containsAnyLetters(cleanAccessibleName)) {
+    recommendation.push("[Accessible name contains no letters]");
+  }
   if (linkElement.href === linkElement.textContent) {
     recommendation.push("[Accessible name is a URL]");
   }
