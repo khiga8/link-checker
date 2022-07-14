@@ -1,21 +1,23 @@
 require("../vendors/recursion.js");
 
 let array = [];
-const allLinks = document.querySelectorAll("a[href]");
+const allLinks = document.querySelectorAll("a");
 
 for (let i = 0; i < allLinks.length; i++) {
   const linkElement = allLinks[i];
   if (isHidden(linkElement)) continue;
-  const accessibleName =
-    getAccName(linkElement) && getAccName(linkElement).name;
 
-  // Get visual label, excluding screen reader only text.
+  let accessibleName = getAccName(linkElement) && getAccName(linkElement).name;
+  if (accessibleName == "" && linkElement.hasAttribute("aria-hidden")) {
+    accessibleName = `<i>(hidden from accessibility API)</i>`;
+  }
   const visibleLabel = fetchVisibleLabel(linkElement);
 
   const cleanVisibleLabel = stripAndDowncaseText(visibleLabel.innerText);
   const cleanAccessibleName = stripAndDowncaseText(accessibleName);
 
   let visibleLabelColumnData = `<i>(same as accessible name)</i>`;
+
   if (!cleanVisibleLabel) {
     visibleLabelColumnData = visibleLabel.innerHTML;
   } else if (cleanVisibleLabel && cleanVisibleLabel !== cleanAccessibleName) {
@@ -62,7 +64,10 @@ function removeVisuallyHiddenElements(el) {
   if (isScreenReaderOnly(el)) {
     el.remove();
   }
-  el.removeAttribute("style");
+
+  ["style", "height", "width"].forEach((attribute) =>
+    el.removeAttribute(attribute)
+  );
 
   if (el.childNodes.length > 0) {
     for (let child in el.childNodes) {
@@ -97,6 +102,7 @@ function isHidden(element) {
 function stripAndDowncaseText(text) {
   return text.replace(/\s+/g, " ").toLowerCase().trim();
 }
+
 function giveRecommendation(
   cleanVisibleLabel,
   cleanAccessibleName,
@@ -105,7 +111,7 @@ function giveRecommendation(
   let recommendation = [];
   if (cleanAccessibleName === "") {
     if (!linkElement.hasAttribute("aria-hidden")) {
-      recommendation.push("[Link is missing accessible name]");
+      recommendation.push("[Missing accessible name]");
     }
   } else {
     if (cleanVisibleLabel && !(cleanVisibleLabel === cleanAccessibleName)) {
@@ -138,10 +144,14 @@ function giveRecommendation(
       recommendation.push("[Very long accessible name]");
     }
     if (!containsAnyLetters(cleanAccessibleName)) {
-      recommendation.push("[Accessible name contains no letters]");
+      recommendation.push(
+        "[Meaningful accessible name]: the accessible name does not appear to be meaningful."
+      );
     }
     if (linkElement.href === linkElement.textContent) {
-      recommendation.push("[Accessible name is a URL]");
+      recommendation.push(
+        "[Meaningful accessible name]: the accessible name is a URL rather than human-friendly text."
+      );
     }
   }
   return recommendation;
@@ -292,13 +302,6 @@ function firstSection() {
       <p>This is a Level A WCAG requirement. Read more at: <a href="https://www.w3.org/WAI/WCAG21/Understanding/label-in-name">Understanding Success Criterion 2.5.3: Label in Name</a></p>
     </details>
     <details>
-      <summary>Accessible name contains no textual content</summary>
-      <p>
-        When the accessible name is entirely composed of non-textual content (like emojis or punctuation), it is very likely it is not meaningful.
-        Please make sure the accessible name is meaningful.
-      </p>
-    </details>
-    <details>
       <summary>Very long accessible name</summary>
       <p>
         While there is no technical restriction, a link text should never be paragraphs or even sentences long! A very long link text is likely to frustrate screen reader users who must listen to the link text word by word.
@@ -310,13 +313,6 @@ function firstSection() {
         Assistive technologies already announce links as links so there is no need to include the word "link" as part of the accessible name. However, if "link" actually describes the destination of the link, such as "Learn more about link best practices", feel free to ignore the flag.
       </p>
     </details>
-    <details>
-    <summary>Accessible name is a URL</summary>
-    <p>
-      A screen reader announces the URL letter by letter. This can be a nuisance if the link text is especially long.
-      Consider providing a human-friendly label for the link rather than relying on the URL as the link text.
-    </p>
-  </details>
   </h4>
   <h2>Table - Analysis of links on evaluated URL</h2>
   <p id='table-note'>
