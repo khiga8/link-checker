@@ -2,6 +2,16 @@
 
 WORK IN PROGRESS!
 
-This is a bookmarklet that generates a report of all the links on a given page. When activated, it will open a new window with a report that allows one to more easily assess the accessibility of links on the page. This report includes a table with a column that surfaces the visible label, accessible name, as well potential issues detected by automated checks.
+This bookmarklet makes it easy for one to review the accessibility of links on a page by providing a consolidated view and analysis of all the links on a given page.
 
-Notably, a large part of determining accessibility relies on human judgment. This bookmarklet makes it easy for one to review the link texts on a page by providing a consolidated view of link attributes alongside guidance on what to assess.
+When activated, it will open a new tab with a report.
+
+This report includes a table with a column that surfaces the accessible name, the visible label, as well potential issues detected by automated checks. In addition to reviewing the flagged issues, always use your human judgment to assess the accessibility of the links.
+
+## Setup
+
+Grab the bookmarklet at [khiga8.github.io/link-checker](https://khiga8.github.io/link-checker/).
+
+## Bug?
+
+If you encounter a bug, please file a ticket. Contributions welcome.
