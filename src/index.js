@@ -1,4 +1,4 @@
-import { computeAccessibleName } from "dom-accessibility-api";
+require("../vendors/recursion.js");
 
 let array = [];
 const allLinks = document.querySelectorAll("a[href]");
@@ -6,7 +6,8 @@ const allLinks = document.querySelectorAll("a[href]");
 for (let i = 0; i < allLinks.length; i++) {
   const linkElement = allLinks[i];
   if (isHidden(linkElement)) continue;
-  const accessibleName = computeAccessibleName(linkElement);
+  const accessibleName =
+    getAccName(linkElement) && getAccName(linkElement).name;
 
   // Get visual label, excluding screen reader only text.
   const visibleLabel = fetchVisibleLabel(linkElement);
