@@ -8,7 +8,8 @@ for (let i = 0; i < allLinks.length; i++) {
   if (isHidden(linkElement)) continue;
 
   const accessibleName =
-    computeAccessibleName(linkElement) && computeAccessibleName(linkElement).name;
+    computeAccessibleName(linkElement) &&
+    computeAccessibleName(linkElement).name;
 
   // Get visual label, excluding screen reader only text.
   const visibleLabel = fetchVisibleLabel(linkElement);
