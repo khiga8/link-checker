@@ -12,79 +12,78 @@ Distributed under the terms of the Open Source Initiative OSI - MIT License
 // End of external script.
 
 let array = [];
-const allLinks = document.querySelectorAll('a');
+const allLinks = document.querySelectorAll("a[href]");
 
 for (let i=0; i < allLinks.length; i++) {
   const linkElement = allLinks[i];
-
-  if (nonVisibleElement(linkElement)) continue;
+  if (isHidden(linkElement)) continue;
 
   const accessibleName = getAccName(linkElement) && getAccName(linkElement).name;
-  const visibleLabel = linkElement.innerText;
 
+  // Get visual label, excluding screen reader only text.
+  const visibleLabel = fetchVisibleLabel(linkElement);
+  
   const cleanVisibleLabel = stripAndDowncaseText(visibleLabel);
   const cleanAccessibleName = stripAndDowncaseText(accessibleName);
 
   let visibleLabelColumnData = `<i>(same as accessible name)</i>`
   if (!cleanVisibleLabel) {
-    let text;
-    if (linkElement.querySelector('img') || linkElement.querySelector('svg')) {
-      text = 'graphic-only'
-    } else {
-      text = 'no graphic or text'
-    }
+    const text = (linkElement.querySelector('img') || linkElement.querySelector('svg')) ? 'graphic-only' : 'no visible label'
     visibleLabelColumnData = `<i>(${text})</i>`
   } else if (cleanVisibleLabel && cleanVisibleLabel !== cleanAccessibleName) {
     if (linkElement.querySelector('svg') || linkElement.querySelector('img')) {
-      visibleLabelColumnData = `<b>${visibleLabel}</b> <i>(with graphic)</i>`
+      visibleLabelColumnData = `<b>${visibleLabel}</b> <i>(and graphic)</i>`
     } else {
       visibleLabelColumnData = `<b>${visibleLabel}</b>`
-      // removeStyles(linkElement)
-      // const linkElementWithVisibleElementsOnly = linkElement.cloneNode(true)
-      // removeHiddenElements(linkElementWithVisibleElementsOnly);
-
-      // visibleLabelColumnData = linkElementWithVisibleElementsOnly.innerHTML
     }
   } 
-  array.push([accessibleName, visibleLabelColumnData, giveRecommendation(cleanVisibleLabel, cleanAccessibleName, linkElement), linkElement]);
+  array.push(
+    [accessibleName, visibleLabelColumnData, giveRecommendation(cleanVisibleLabel, cleanAccessibleName, linkElement), linkElement]
+  );
 };
 
-function linkTextIsTooShort(text) {
-  return text.length > 0 && text.length <= 2;
+function nonTextualLinkText(text) {
+  return !text.match(RegExp(/[a-z0-9]+$/i))
 }
 
-function removeHiddenElements(el) {
-  if (nonVisibleElement(el)) {
+function removePunctuationAndEmoji(text) {
+  return text.replace(/[.,/#!$%^&*;:{}=-_`~()+-]/g, "").replace(/s{2,}/g, " ")
+    .replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '');
+}
+
+function fetchVisibleLabel(element) {
+  const clonedLink = element.cloneNode(true);
+  element.insertAdjacentElement('afterend', clonedLink);
+  removeVisuallyHiddenElements(clonedLink);
+  const visibleLabel = clonedLink.innerText;
+  clonedLink.remove();
+
+  return visibleLabel;
+}
+
+/* Determines if link is visually hidden but accessible by screen readers. */
+function removeVisuallyHiddenElements(el) {
+  if (isScreenReaderOnly(el)) {
     el.remove();
   }
 
   if (el.childNodes.length > 0) {
     for(let child in el.childNodes) {
         if(el.childNodes[child].nodeType == 1) {
-          removeHiddenElements(el.childNodes[child]);
+          removeVisuallyHiddenElements(el.childNodes[child]);
         }
     }
   }
 }
 
-function removeStyles(el) {
-  el.removeAttribute('style');
-
-  if(el.childNodes.length > 0) {
-    for(let child in el.childNodes) {
-        if(el.childNodes[child].nodeType == 1) {
-          removeStyles(el.childNodes[child]);
-        }
-    }
-  }
+/* Determines if link is visually hidden but accessible by screen readers. */
+function isScreenReaderOnly(element) {
+  const computedStyle = window.getComputedStyle(element);
+  return  computedStyle.height === '1px' && computedStyle.position === 'absolute' && computedStyle.clip === 'rect(0px, 0px, 0px, 0px)';
 }
 
-function removePunctuationAndEmoji(text) {
-  return text.replace(/[.,/#!$%^&*;:{}=-_`~()]/g, "").replace(/s{2,}/g, " ")
-    .replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '');
-}
-
-function nonVisibleElement(element) {
+/* Determines if link is visually hidden and not accessible by screen readers. */
+function isHidden(element) {
   return !element.offsetWidth || !element.offsetHeight || !element.getClientRects().length || window.getComputedStyle(element).visibility === "hidden" || window.getComputedStyle(element).display === "none"
 }
 
@@ -92,43 +91,54 @@ function stripAndDowncaseText(text) {
   return text.replace(/\s+/g, ' ').toLowerCase().trim();
 }
 function giveRecommendation(cleanVisibleLabel, cleanAccessibleName, linkElement) {
-  const veryCleanAccessibleName = stripAndDowncaseText(removePunctuationAndEmoji(cleanAccessibleName));
-  const veryCleanVisibleLabel = stripAndDowncaseText(removePunctuationAndEmoji(cleanVisibleLabel));
-  console.log(`${veryCleanVisibleLabel}. ${veryCleanAccessibleName}.`);
   let recommendation = [];
   if (cleanAccessibleName === '') {
-    if ( !linkElement.hasAttribute('aria-hidden')) {
-      recommendation.push('[Link is missing accessible name]')
-    }
+    if ( !linkElement.hasAttribute('aria-hidden')) recommendation.push('[Link is missing accessible name]')
   } if (cleanVisibleLabel && !(cleanVisibleLabel === cleanAccessibleName)) {
-    if (linkElement.querySelector('svg') || linkElement.querySelector('img')) {
-      // recommendation.push('Requires manual review.')
-    } else if (!veryCleanAccessibleName.match(new RegExp(`\\b${veryCleanVisibleLabel}\\b`))) {
-      recommendation.push('[Accessible name must include the complete visible label]')
+    const veryCleanAccessibleName = stripAndDowncaseText(removePunctuationAndEmoji(cleanAccessibleName));
+    const veryCleanVisibleLabel = stripAndDowncaseText(removePunctuationAndEmoji(cleanVisibleLabel));
+
+    if (!veryCleanAccessibleName.match(new RegExp(`\\b${veryCleanVisibleLabel}\\b`))) {
+      if (!linkElement.querySelector('svg') && !linkElement.querySelector('img')) {
+        recommendation.push('[Accessible name must include the complete visible label]')
+      }
     }
-  } if (cleanAccessibleName.match(new RegExp('\^\blink\\b'))) {
-    recommendation.push('[`link` text in accessible name]')
-  } if (cleanAccessibleName.length > 125) {
-    recommendation.push('[Very long accessible name]')
-  } if (linkTextIsTooShort(cleanAccessibleName)) {
-    recommendation.push( "[Very short accessible name]")
-  } if (linkElement.href === linkElement.textContent) {
-    recommendation.push( "[Accessible name is a URL]")
-  } if (cleanAccessibleName) {
   }
+  if (cleanAccessibleName.match(new RegExp('\^\blink\\b'))) {
+    recommendation.push('[`link` text in accessible name]')
+  } 
+  if (cleanAccessibleName.length > 300) {
+    recommendation.push('[Very long accessible name]')
+  } 
+  // if (nonTextualLinkText(cleanAccessibleName)) {
+  //   recommendation.push( "[Accessible name contains no textual content]")
+  // } 
+  if (linkElement.href === linkElement.textContent) {
+    recommendation.push( "[Accessible name is a URL]")
+  } 
   return recommendation
 }
 
 function tableRow(accessibleName, visibleLabel, recommendation) {
   let recommendationHTML = '';
   for (let i=0; i < recommendation.length; i++) {
-    recommendationHTML += `<p>${recommendation[i]}</p>`
+    recommendationHTML += `<p style="color: #205493;">${recommendation[i]}</p>`
   }
   return '<tr><td><b>' + accessibleName + '</b></td><td>' + visibleLabel + '</td><td>' + recommendationHTML + '</td><td>' + '<button>Log to console of evaluated page</button>' + '</td></tr>';
 }
 
 function createReport(array) {
-  let table = '<table aria-describedby="table-note"><caption>Analysis of links on evaluated URL</caption><thead width="20%"><th>Accessible name</th><th width="20%">Visible label</th><th width="40%">Flag ⚠️</th><th width="20%">Log to console</th></thead><tbody>';
+  let table = `
+    <table aria-describedby="table-note">
+      <caption>Analysis of links on evaluated URL</caption>
+      <thead width="20%">
+        <th>Accessible name</th>
+        <th width="20%">Visible label</th>
+        <th width="40%">Flag ⚠️</th>
+        <th width="20%">Log to console</th>
+      </thead>
+      <tbody>
+    `;
   for (let i=0; i<array.length; i++) {
     const row = tableRow(array[i][0], array[i][1], array[i][2]);
     table += row
@@ -152,6 +162,7 @@ function createReport(array) {
         font-family: Arial, Helvetica, sans-serif;
       }
       table {
+        border: 1px solid #bccbd3;
         width: 100%;
       }
       svg, img {
@@ -162,6 +173,7 @@ function createReport(array) {
         color: white;
       }
       th, td {
+        border: 1px solid #bccbd3;
         padding: 5px;
         text-align: left;
         word-wrap: break-word;
@@ -175,6 +187,7 @@ function createReport(array) {
       }
       summary {
         font-weight: bold;
+        color: #205493;
         margin: -.25em -.25em 0;
         padding: .25em;
       }
@@ -200,7 +213,7 @@ function firstSection() {
     </p>
     <h3>Things to assess</h3>
     <p>  
-      Assessing link accessibility always requires human judgement. Even though some issues may appear under "Flagged", please be sure to use your human judgment to evaluate link text on qualities such as meaningfulness.
+      Assessing link accessibility always requires human judgement. Not all issues will appear under "Flagged" so please use your human judgment to evaluate link text on qualities such as meaningfulness.
     </p>
     <details>
       <summary>Meaningful link text</summary>
@@ -237,15 +250,16 @@ function firstSection() {
       <p>This is a Level A WCAG requirement. Read more at: <a href="https://www.w3.org/WAI/WCAG21/Understanding/label-in-name">Understanding Success Criterion 2.5.3: Label in Name</a></p>
     </details>
     <details>
-      <summary>Very short accessible name</summary>
+      <summary>Accessible name contains no textual content</summary>
       <p>
-        A link text that appears to be short is likely not sufficient to help a user determine whether to follow the link. Please consider providing a more descriptive link text.
+        When the accessible name is entirely composed of non-textual content (like emojis or punctuation), it is very likely it is not meaningful.
+        Please make sure the accessible name is meaningful.
       </p>
     </details>
     <details>
       <summary>Very long accessible name</summary>
       <p>
-        While there is no technical restriction, a link text should never be paragraphs or even sentences long! A very long link text will frustrate screen reader users who should not need to listen to very long link text just to understand the link purpose. Link text should be as concise as it can be to still be adequately be meaningful. 
+        While there is no technical restriction, a link text should never be paragraphs or even sentences long! A very long link text is likely to frustrate screen reader users who must listen to the link text word by word.
       </p>
     </details>
     <details>
@@ -257,13 +271,14 @@ function firstSection() {
     <details>
     <summary>Accessible name is a URL</summary>
     <p>
-      Consider providing a meaningful label for the link. A URL is not very human-friendly, especially when announced by screen readers.
+      A screen reader announces the URL letter by letter. This can be a nuisance if the link text is especially long.
+      Consider providing a human-friendly label for the link rather than relying on the URL as the link text.
     </p>
   </details>
   </h4>
   <h2>Table - Analysis of links on evaluated URL</h2>
   <p id='table-note'>
-    Column 3 (Log to console) includes a button that will allow further inspect of a given link element if necessary. Selecting the button will result in a console output of the element in the browser console of the original page allowing for further browser inspection.
+    Column 4 (Log to console) includes a button that will allow further inspect of a given link element if necessary. Selecting the button will result in a console output of the element in the browser console of the original page allowing for further browser inspection.
   </p>
   `
 }
