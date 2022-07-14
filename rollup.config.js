@@ -1,6 +1,11 @@
+import { nodeResolve } from "@rollup/plugin-node-resolve";
+
 export default {
-  entry: "src/index.js",
-  dest: "build/index.min.js",
-  format: "iife",
-  sourceMap: "inline",
+  input: "./src/index.js",
+  output: {
+    file: "./build/bundle.min.js",
+    format: "iife",
+    name: "bundle",
+  },
+  plugins: [nodeResolve()],
 };

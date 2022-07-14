@@ -6,7 +6,6 @@ const allLinks = document.querySelectorAll("a[href]");
 for (let i = 0; i < allLinks.length; i++) {
   const linkElement = allLinks[i];
   if (isHidden(linkElement)) continue;
-
   const accessibleName =
     computeAccessibleName(linkElement) &&
     computeAccessibleName(linkElement).name;
