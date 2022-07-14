@@ -6,8 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "prettier --write '.'",
-    "build": "rollup -c",
-    "generate": "npm run lint && npm run build && node generate-bookmarklet.js"
+    "rollup": "rollup -c",
+    "build": "npm run lint && npm run rollup && node generate-bookmarklet.js"
   },
   "repository": {
     "type": "git",
