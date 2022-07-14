@@ -20,11 +20,14 @@ fs.writeFileSync(
 <h1>Link Checker Bookmarklet</h1>
 <p>
   Drag the following link to your bookmarks bar:
+  <br>
+  <br>  
   <a href="${output}">Link Checker</a>
 </p>
-
+<br>
+<br>
 <p>
- <a href="https://github.com/khiga8/link-checker">View the Source Code on GitHub</a>
+ <a href="https://github.com/khiga8/link-checker">Source Code on GitHub</a>
 </p>
 `
 );
