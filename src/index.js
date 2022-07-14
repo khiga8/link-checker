@@ -104,43 +104,45 @@ function giveRecommendation(
 ) {
   let recommendation = [];
   if (cleanAccessibleName === "") {
-    if (!linkElement.hasAttribute("aria-hidden"))
+    if (!linkElement.hasAttribute("aria-hidden")) {
       recommendation.push("[Link is missing accessible name]");
-  }
-  if (cleanVisibleLabel && !(cleanVisibleLabel === cleanAccessibleName)) {
-    const veryCleanAccessibleName = stripAndDowncaseText(
-      removePunctuationAndEmoji(cleanAccessibleName)
-    );
-    const veryCleanVisibleLabel = stripAndDowncaseText(
-      removePunctuationAndEmoji(cleanVisibleLabel)
-    );
+    }
+  } else {
+    if (cleanVisibleLabel && !(cleanVisibleLabel === cleanAccessibleName)) {
+      const veryCleanAccessibleName = stripAndDowncaseText(
+        removePunctuationAndEmoji(cleanAccessibleName)
+      );
+      const veryCleanVisibleLabel = stripAndDowncaseText(
+        removePunctuationAndEmoji(cleanVisibleLabel)
+      );
 
-    if (
-      !veryCleanAccessibleName.match(
-        new RegExp(`\\b${veryCleanVisibleLabel}\\b`)
-      )
-    ) {
       if (
-        !linkElement.querySelector("svg") &&
-        !linkElement.querySelector("img")
+        !veryCleanAccessibleName.match(
+          new RegExp(`\\b${veryCleanVisibleLabel}\\b`)
+        )
       ) {
-        recommendation.push(
-          "[Accessible name must include the complete visible label]"
-        );
+        if (
+          !linkElement.querySelector("svg") &&
+          !linkElement.querySelector("img")
+        ) {
+          recommendation.push(
+            "[Accessible name must include the complete visible label]"
+          );
+        }
       }
     }
-  }
-  if (cleanAccessibleName.match(new RegExp("^\blink\\b"))) {
-    recommendation.push("[`link` text in accessible name]");
-  }
-  if (cleanAccessibleName.length > 300) {
-    recommendation.push("[Very long accessible name]");
-  }
-  if (!containsAnyLetters(cleanAccessibleName)) {
-    recommendation.push("[Accessible name contains no letters]");
-  }
-  if (linkElement.href === linkElement.textContent) {
-    recommendation.push("[Accessible name is a URL]");
+    if (cleanAccessibleName.match(new RegExp("^\blink\\b"))) {
+      recommendation.push("[`link` text in accessible name]");
+    }
+    if (cleanAccessibleName.length > 300) {
+      recommendation.push("[Very long accessible name]");
+    }
+    if (!containsAnyLetters(cleanAccessibleName)) {
+      recommendation.push("[Accessible name contains no letters]");
+    }
+    if (linkElement.href === linkElement.textContent) {
+      recommendation.push("[Accessible name is a URL]");
+    }
   }
   return recommendation;
 }
