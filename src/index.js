@@ -160,7 +160,7 @@ function giveRecommendation(
         "[Meaningful accessible name]: the accessible name does not appear to be meaningful."
       );
     }
-    if (linkElement.href === linkElement.textContent) {
+    if (linkElement.href === cleanAccessibleName) {
       recommendation.push(
         "[Meaningful accessible name]: the accessible name is a URL rather than human-friendly text."
       );
