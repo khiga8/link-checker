@@ -208,14 +208,10 @@ function createReport(array) {
   }
   var w = window.open("");
 
-  w.document.title = "Links report for " + document.title;
+  w.document.title = "Links on " + document.title;
   w.document.documentElement.setAttribute("lang", "en");
   w.document.body.innerHTML =
-    `<h1>Links report for "${document.title}"</h1> ` +
-    "<main>" +
-    section() +
-    table +
-    "</main>";
+    `<h1>${w.document.title}</h1> ` + "<main>" + section() + table + "</main>";
 
   let buttons = w.document.querySelectorAll("button");
   for (let i = 0; i < buttons.length; i++) {
