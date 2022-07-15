@@ -8,9 +8,6 @@ for (let i = 0; i < allLinks.length; i++) {
   if (isHidden(linkElement)) continue;
 
   let accessibleName = fetchAccessibleName(linkElement);
-  if (accessibleName == "" && linkElement.hasAttribute("aria-hidden")) {
-    accessibleName = `<i>(hidden from accessibility API)</i>`;
-  }
   const visibleLabel = fetchVisibleLabel(linkElement);
 
   const cleanVisibleLabel = stripAndDowncaseText(visibleLabel.innerText);
@@ -18,6 +15,12 @@ for (let i = 0; i < allLinks.length; i++) {
 
   let visibleLabelColumnData = `<i>(same as accessible name)</i>`;
 
+  let styledAccessibleName;
+  if (accessibleName == "" && linkElement.hasAttribute("aria-hidden")) {
+    styledAccessibleName = `<i>(hidden from accessibility API)</i>`;
+  } else {
+    styledAccessibleName = `<b>${accessibleName}</b>`;
+  }
   if (!cleanVisibleLabel) {
     visibleLabelColumnData = visibleLabel.innerHTML;
   } else if (cleanVisibleLabel && cleanVisibleLabel !== cleanAccessibleName) {
@@ -28,7 +31,7 @@ for (let i = 0; i < allLinks.length; i++) {
     }
   }
   array.push([
-    accessibleName,
+    styledAccessibleName,
     visibleLabelColumnData,
     giveRecommendation(cleanVisibleLabel, cleanAccessibleName, linkElement),
     linkElement,
@@ -157,7 +160,7 @@ function giveRecommendation(
     }
     if (!containsAnyLetters(cleanAccessibleName)) {
       recommendation.push(
-        "[Meaningful accessible name]: the accessible name does not appear to be meaningful."
+        "[Meaningful accessible name]: the accessible name does not appear meaningful on its own."
       );
     }
     if (linkElement.href === cleanAccessibleName) {
@@ -169,20 +172,20 @@ function giveRecommendation(
   return recommendation;
 }
 
-function tableRow(accessibleName, visibleLabel, recommendation) {
+function tableRow(rowNum, accessibleName, visibleLabel, recommendation) {
   let recommendationHTML = "";
   for (let i = 0; i < recommendation.length; i++) {
     recommendationHTML += `<p style="color: #205493;">${recommendation[i]}</p>`;
   }
   return (
-    "<tr><td><b>" +
+    "<tr><td>" +
     accessibleName +
-    "</b></td><td>" +
+    "</td><td>" +
     visibleLabel +
     "</td><td>" +
     recommendationHTML +
     "</td><td>" +
-    "<button>Log to console of evaluated page</button>" +
+    `<button aria-label="Log element in Row ${rowNum}">Log element</button>` +
     "</td></tr>"
   );
 }
@@ -195,12 +198,12 @@ function createReport(array) {
         <th>Accessible name</th>
         <th width="20%">Visible label</th>
         <th width="40%">Flag ⚠️</th>
-        <th width="20%">Log to console</th>
+        <th width="20%">Log element</th>
       </thead>
       <tbody>
     `;
   for (let i = 0; i < array.length; i++) {
-    const row = tableRow(array[i][0], array[i][1], array[i][2]);
+    const row = tableRow(i + 1, array[i][0], array[i][1], array[i][2]);
     table += row;
   }
   var w = window.open("");
@@ -229,7 +232,7 @@ function createReport(array) {
     <style>
       body {
         font-family: charter, Georgia, Cambria, "Times New Roman", Times, serif;
-        padding: 5%;
+        padding: 2% 5%;
       }
       h1, h2, h3, h4, h5, h6 {
         font-family: sohne, "Helvetica Neue", Helvetica, Arial, sans-serif;
