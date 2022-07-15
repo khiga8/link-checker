@@ -300,7 +300,7 @@ function section() {
     <p style="color: #4c2c92;">  
       <b>IMPORTANT:</b> Only some issues will be flagged. Plesae use your human judgment to assess each accessible name on qualities such as meaningfulness.
     </p>
-    <h3>Qualities to look out for</h3>
+    <h3>Things to assess</h3>
     <details>
       <summary>Meaningful link text</summary>
       <p>Ensuring that the purpose of the link can be identified from the link text alone greatly benefits usability and accessibility. Screen reader users often jump between link on a page and depend on the link text to understand where it goes.
