@@ -206,8 +206,13 @@ function createReport(array) {
   var w = window.open("");
 
   w.document.title = "Links report for " + document.title;
+  w.document.documentElement.setAttribute("lang", "en");
   w.document.body.innerHTML =
-    `<h1>Links report for "${document.title}"</h1> ` + section() + table;
+    `<h1>Links report for "${document.title}"</h1> ` +
+    "<main>" +
+    section() +
+    table +
+    "</main>";
 
   let buttons = w.document.querySelectorAll("button");
   for (let i = 0; i < buttons.length; i++) {
@@ -220,6 +225,7 @@ function createReport(array) {
   w.document.head.insertAdjacentHTML(
     "beforeend",
     `
+    <html lang="en">
     <style>
       body {
         font-family: Arial, Helvetica, sans-serif;
@@ -288,7 +294,7 @@ function section() {
       <p>Link texts composed entirely of numbers, emojis, or punctuations are most likely non-meaningful and will be flagged by this tool.</p>
       <p>Read more at: <a href="https://www.w3.org/WAI/WCAG21/Understanding/link-purpose-link-only">Understanding Success Criterion 2.4.9: Link Purpose (Link Only)</a>
       Learn more about the related concept: <a href="https://www.w3.org/WAI/WCAG21/Understanding/link-purpose-in-context.html">Understanding Success Criterion 2.4.4: Link Purpose (In Context)</a>
-      <h5>Examples</h5>
+      <h4>Examples for meaningful link text</h4>
       <p>
         <div><b>Meaningful link text <span aria-hidden="true">✅</span></b>: <i>History of California, Cat breeds, Search e-mail</i></div>
         <div><b>Non-meaningful link text <span aria-hidden="true">❌</span></b>: <i>here, Read more, click here, 0171238jd7812, 25, cool, https://www.google.com </i></div>
@@ -302,7 +308,7 @@ function section() {
         This will ensure that speech-input users who activate controls based on a visible label can interact with the control even when it has an accessible name override that isn't visually obvious.
         Sighted users who use text-to-speech (e.g., screen readers) will also have a better experience if the text they hear (accessible name), matches the text they see on the screen (visible label).
       </p>
-      <h5>Examples</h5>
+      <h4>Examples for accessible name must include complete visible label</h4>
       <p><b>Valid visible label and accessible name <span aria-hidden="true">✅</span>:</b>
         <ul>
           <li><b>Visible label</b>: Learn more, <b>Accessible name</b>: Learn more about cats in Texas</li>
@@ -335,7 +341,7 @@ function section() {
     <b>IMPORTANT:</b> Only some issues are flagged so always use your human judgment to evaluate every accessible name on qualities such as meaningfulness.
   </p>
   <p id='column-2-note'>
-    Column 2 contains the visible label. If the cell is visually empty, it is possible the visible label exists but couldn't render in this report so please console log and review the visible label on the original page.
+    Column 2 (Visible label) contains the visible label. If the cell is visually empty, it is possible the visible label exists but couldn't render in this report so please console log and review the visible label on the original page.
   </p>
   <p id='column-4-note'>
     Column 4 (Log to console) includes a button that will allow further inspect of a given link element by console outputting the element in the browser console of the original page.
