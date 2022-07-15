@@ -189,7 +189,7 @@ function tableRow(accessibleName, visibleLabel, recommendation) {
 
 function createReport(array) {
   let table = `
-    <table aria-describedby="table-note">
+    <table aria-describedby="column-2-note column-4-note">
       <caption>Analysis of links on evaluated URL</caption>
       <thead width="20%">
         <th>Accessible name</th>
@@ -229,7 +229,6 @@ function createReport(array) {
         width: 100%;
       }
       svg, img {
-        border: 1px solid gold;
         width: 20px;
       }
       thead {
@@ -272,8 +271,9 @@ function createReport(array) {
 function section() {
   return `
     <h2>Guide</h2>
+    <p> Evaluated URL: <a href="${window.location.href}">${window.location.href}</a></p>
     <p>
-      The table below lists the visible label and/or accessible name for all (non-hidden) links on the URL (<a href="${window.location.href}">${window.location.href}</a>).
+      The table below lists the visible label and/or accessible name for all (non-hidden) links on the evaluated page.
       Potential issues that are detected are output in the "Flag ⚠️" column and should be reviewed carefully.
     </p>
     <p style="color: #4c2c92;">  
@@ -330,8 +330,10 @@ function section() {
     </details>
   </h4>
   <h2>Table - Analysis of links on evaluated URL</h2>
-  <p id='table-note'>
-    Column 2 contains the visible label. If the cell is empty, it is possible the visible label exists but is unsupported to render in this report so please review the element on the original page.
+  <p id='column-2-note'>
+    Column 2 contains the visible label. If the cell is visually empty, it is possible the visible label exists but couldn't render in this report so please console log and review the visible label on the original page.
+  </p>
+  <p id='column-4-note'>
     Column 4 (Log to console) includes a button that will allow further inspect of a given link element by console outputting the element in the browser console of the original page.
   </p>
   `;
