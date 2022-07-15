@@ -167,7 +167,7 @@ function giveRecommendation(
       }
     }
     if (cleanAccessibleName.match(new RegExp("^\blink\\b"))) {
-      recommendation.push("[`link` text in accessible name]");
+      recommendation.push("[`link` should be excluded from accessible name]");
     }
     if (cleanAccessibleName.length > 300) {
       recommendation.push("[Link text should be as concise as possible]");
@@ -370,7 +370,7 @@ function section() {
       <p>Use your own judgment!</p>
     </details>
     <details>
-      <summary>'link' text should not be excluded in accessible name</summary>
+      <summary>'link' should be excluded in accessible name</summary>
       <p>
         Screen readers already announce links as a link so no need to include it as part of the accessible name. However, if "link" does describe the destination of the link (e.g. "Link best practices") it is acceptable.
       </p>
