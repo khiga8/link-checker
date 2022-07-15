@@ -8,13 +8,13 @@ This tool will simply assist you by providing a consolidated view, things to loo
 
 <b>A human (you) should be making the final judgment call!!!</b>
 
-## Features
-
-When activated, it will open a new tab with a report of all links on the specified page. This report includes a table with a column that surfaces the accessible name, the visible label, as well potential issues detected by automated checks. In addition to reviewing the flagged issues, always use your human judgment to assess the accessibility of the links.
-
 ## Setup
 
 Simply grab the bookmarklet at [khiga8.github.io/link-checker](https://khiga8.github.io/link-checker/).
+
+## Features
+
+When activated, it will open a new tab with a report of all links on the specified page. This report includes a table with a column that surfaces the accessible name, the visible label, as well potential issues detected by automated checks. In addition to reviewing the flagged issues, always use your human judgment to assess the accessibility of the links.
 
 ## Bug?
 
