@@ -319,6 +319,11 @@ function section() {
     <p style="color: #4c2c92;">  
       <b>IMPORTANT:</b> Only some issues can be flagged. Use your own human judgment to assess each accessible name on qualities such as meaningfulness.
     </p>
+    <h3>Basic concepts</h3>
+    <ul>
+      <li>Accessible name: refers to the name of an element that is exposed to assistive technologies.</li>
+      <li>Visible label: refers to the visible label of the link. it can be text-only, graphics-only, or a mix of graphics and text.</li>
+    </ul>
     <h3>Things to assess</h3>
     <details>
       <summary>Meaningful link text</summary>
@@ -386,7 +391,7 @@ function section() {
   <h2>Table - Analysis of links on evaluated URL</h2>
   <div aria-describedby="table-note">
     <p id='column-1-note'>
-      Column 1 (Accessible name) conveys the programmatic name of the element exposed to the accessibility API. If it is explicitly hidden, it will be marked as <i>(hidden fro accessibility API</i>.
+      Column 1 (Accessible name) conveys the accessible name of the element exposed to the accessibility API. If it is explicitly hidden, it will be marked as <i>(hidden from accessibility API</i>.
     </p>
     <p id='column-2-note'>
       Column 2 (Visible label) conveys the visible label. If the visual label and the accessible name match, it will say <i>(same as accessible name</i>. If the cell is visually empty, it's likely the visual label rendered in the report. Log the element and review the visible label on the original page.

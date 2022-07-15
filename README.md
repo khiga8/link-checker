@@ -4,7 +4,7 @@ This bookmarklet makes it easy for one to review the accessibility of links on a
 
 The goal of this bookmarklet is NOT to find every issue for you — this is impossible.
 
-Assessing accessibility and usability always requires human judgement.
+Assessing accessibility and usability always requires human judgment.
 
 This tool will support you by providing a consolidated view of both the accessible name and the visible label, things to look out for, and potential flags.
 <b>A human (you) should be making the final judgment call!</b>
