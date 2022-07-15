@@ -1,7 +1,22 @@
 require("../vendors/recursion.js");
 
 let array = [];
+let map = new Map();
 const allLinks = document.querySelectorAll("a");
+
+for (let i = 0; i < allLinks.length; i++) {
+  const linkElement = allLinks[i];
+  if (isHidden(linkElement)) continue;
+
+  let accessibleName = fetchAccessibleName(linkElement);
+  const cleanAccessibleName = stripAndDowncaseText(accessibleName);
+
+  let set = map.get(cleanAccessibleName)
+    ? map.get(cleanAccessibleName)
+    : new Set();
+  set.add(linkElement.href);
+  map.set(cleanAccessibleName, set);
+}
 
 for (let i = 0; i < allLinks.length; i++) {
   const linkElement = allLinks[i];
@@ -37,7 +52,6 @@ for (let i = 0; i < allLinks.length; i++) {
     linkElement,
   ]);
 }
-
 function containsAnyLetters(str) {
   return /[a-zA-Z]/.test(str);
 }
@@ -166,6 +180,11 @@ function giveRecommendation(
     if (linkElement.href === cleanAccessibleName) {
       recommendation.push(
         "[Meaningful accessible name]: the accessible name is a URL rather than human-friendly text."
+      );
+    }
+    if (map.get(cleanAccessibleName).size > 1) {
+      recommendation.push(
+        "[Name is not unique]: there are other links with the same name, but different destination."
       );
     }
   }
@@ -346,9 +365,15 @@ function section() {
     <details>
       <summary>'link' text in accessible name</summary>
       <p>
-        Assistive technologies already announce links as a link so no need to include it as part of the accessible name. However, if "link" does describe the destination of the link (e.g. "Link best practices") feel free to ignore the flag.
+        Screen readers already announce links as a link so no need to include it as part of the accessible name. However, if "link" does describe the destination of the link (e.g. "Link best practices") feel free to ignore the flag.
       </p>
     </details>
+    <details>
+      <summary>Name should be unique</summary>
+      <p>
+        Links that have different destinations should NOT share an accessible name. This will make it difficult for users who use link shortcuts to decide whether to follow the link. Make sure the link text adequately describes the destination.
+      </p>
+  </details>
   </h4>
   <h2>Table - Analysis of links on evaluated URL</h2>
   <p id='column-2-note'>
