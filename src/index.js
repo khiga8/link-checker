@@ -90,7 +90,7 @@ function removeVisuallyHiddenElements(el) {
   }
 }
 
-/* Determines if link is visually hidden but accessible by screen readers. */
+/* Determines if link is visually hidden but exposed in accessibility API. */
 function isScreenReaderOnly(element) {
   const computedStyle = window.getComputedStyle(element);
   return (
@@ -100,7 +100,7 @@ function isScreenReaderOnly(element) {
   );
 }
 
-/* Determines if link is visually hidden and not accessible by screen readers. */
+/* Determines if link is visually hidden and not exposed to accessibility API. */
 function isHidden(element) {
   return (
     !element.offsetWidth ||
@@ -228,14 +228,21 @@ function createReport(array) {
     <html lang="en">
     <style>
       body {
-        font-family: Arial, Helvetica, sans-serif;
+        font-family: charter, Georgia, Cambria, "Times New Roman", Times, serif;
+        padding: 5%;
+      }
+      h1, h2, h3, h4, h5, h6 {
+        font-family: sohne, "Helvetica Neue", Helvetica, Arial, sans-serif;
+        color: rgba(41, 41, 41, 1);
       }
       table {
         border: 1px solid #bccbd3;
         width: 100%;
       }
       svg, img {
-        width: 20px;
+        padding: 1px;
+        max-width: 20px;
+        max-height: 20px;
       }
       thead {
         background-color: #333;
@@ -276,16 +283,24 @@ function createReport(array) {
 
 function section() {
   return `
-    <h2>Guide</h2>
     <p> Evaluated URL: <a href="${window.location.href}">${window.location.href}</a></p>
-    <p>
-      The table below lists the visible label and/or accessible name for all (non-hidden) links on the evaluated page.
+    <h2>Guide</h2>
+    <ol>
+      <li>
+        <p>First, you must understand what qualities makes a good (or bad) link text. Read through the "Things to assess" section.</p>
+      </li>
+      <li>
+        <p>Review the table below which contains the visible label and accessible name for links on the evaluated page.
+        <i>Some</i> issues are flagged in the "Flag ⚠️" column which should definitely be carefully inspected.</p>
+      </li>
+      <li>
+        <p>If you notice any issues with the link text, select the "Log element" button to further inspect the element on the original page.</p>
+      </li>
+    </ol>
+    <p style="color: #4c2c92;">  
+      <b>IMPORTANT:</b> Only some issues will be flagged. Plesae use your human judgment to assess each accessible name on qualities such as meaningfulness.
     </p>
-    <p>
-      Please use your human skills to assess the accessibility of the links.
-      Some (but not all) issues may be flagged and output in the "Flag ⚠️" column.
-    </p>
-    <h3>Things to assess</h3>
+    <h3>Qualities to look out for</h3>
     <details>
       <summary>Meaningful link text</summary>
       <p>Ensuring that the purpose of the link can be identified from the link text alone greatly benefits usability and accessibility. Screen reader users often jump between link on a page and depend on the link text to understand where it goes.
@@ -337,14 +352,11 @@ function section() {
     </details>
   </h4>
   <h2>Table - Analysis of links on evaluated URL</h2>
-  <p id='important' style="color: #4c2c92;">  
-    <b>IMPORTANT:</b> Only some issues are flagged so always use your human judgment to evaluate every accessible name on qualities such as meaningfulness.
-  </p>
   <p id='column-2-note'>
     Column 2 (Visible label) contains the visible label. If the cell is visually empty, it is possible the visible label exists but couldn't render in this report so please console log and review the visible label on the original page.
   </p>
   <p id='column-4-note'>
-    Column 4 (Log to console) includes a button that will allow further inspect of a given link element by console outputting the element in the browser console of the original page.
+    Column 4 (Log element) includes a button that logs the element in the browser console of the original page allowing further inspection.
   </p>
   `;
 }
