@@ -170,7 +170,7 @@ function giveRecommendation(
       recommendation.push("[`link` text in accessible name]");
     }
     if (cleanAccessibleName.length > 300) {
-      recommendation.push("[Very long accessible name]");
+      recommendation.push("[Link text should be as concise as possible]");
     }
     if (!containsAnyLetters(cleanAccessibleName)) {
       recommendation.push(
@@ -211,7 +211,7 @@ function tableRow(rowNum, accessibleName, visibleLabel, recommendation) {
 
 function createReport(array) {
   let table = `
-    <table aria-describedby="column-2-note column-4-note important">
+    <table aria-describedby="table-note">
       <caption>Analysis of links on evaluated URL</caption>
       <thead width="20%">
         <th>Accessible name</th>
@@ -247,7 +247,7 @@ function createReport(array) {
     <style>
       body {
         font-family: charter, Georgia, Cambria, "Times New Roman", Times, serif;
-        padding: 2% 5%;
+        padding: 2% 12%;
       }
       h1, h2, h3, h4, h5, h6 {
         font-family: sohne, "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -305,24 +305,26 @@ function section() {
     <h2>Guide</h2>
     <ol>
       <li>
-        <p>First, you must understand what qualities makes a good (or bad) link text. Read through the "Things to assess" section.</p>
+        <p>Before you do anything, you should understand what qualities makes a good (or bad) link text. Take time to look through the "Things to assess" section.</p>
       </li>
       <li>
         <p>Review the table below which contains the visible label and accessible name for links on the evaluated page.
-        <i>Some</i> issues are flagged in the "Flag ⚠️" column which should definitely be carefully inspected.</p>
+        <i>Some</i> issues are flagged in the "Flag ⚠️" column.</p>
       </li>
       <li>
-        <p>If you notice any issues with the link text, select the "Log element" button to further inspect the element on the original page.</p>
+        <p>If you would like to examine the element further, select the "Log element" button.</p>
+        <p>This will log the element on the original page where it can further be inspected.</p>
       </li>
     </ol>
     <p style="color: #4c2c92;">  
-      <b>IMPORTANT:</b> Only some issues will be flagged. Plesae use your human judgment to assess each accessible name on qualities such as meaningfulness.
+      <b>IMPORTANT:</b> Only some issues can be flagged. Use your own human judgment to assess each accessible name on qualities such as meaningfulness.
     </p>
     <h3>Things to assess</h3>
     <details>
       <summary>Meaningful link text</summary>
-      <p>Ensuring that the purpose of the link can be identified from the link text alone greatly benefits usability and accessibility. Screen reader users often jump between link on a page and depend on the link text to understand where it goes.
-      When a link has non-meaningful text, users may be forced to read the full surrounding text to gain context. Meaningful link text will help many user groups find information more easily on a page.</p>
+      <p>Link text that is meaningful on its own greatly benefits usability and accessibility for many users groups.</p>
+      <p>Screen reader users often jump between link on a page and depend on the link text to understand where it goes.
+      When a link has non-meaningful text, users may be forced to listen to the full surrounding text to gain context.</p>
       <p>URLs are not a good link text because it will be announced by a screen reader character by character and cause frustration.</p>
       <p>Link texts composed entirely of numbers, emojis, or punctuations are most likely non-meaningful and will be flagged by this tool.</p>
       <p>Read more at: <a href="https://www.w3.org/WAI/WCAG21/Understanding/link-purpose-link-only">Understanding Success Criterion 2.4.9: Link Purpose (Link Only)</a>
@@ -338,7 +340,10 @@ function section() {
       <summary>Accessible name must include the complete visible label</summary>
       <p>
         When both the accessible name and visible label are set, you <b>must</b> ensure that the accessible name fully contains the visible text label. It is best practice to have the accessible name start with the exact visible label text.
-        This will ensure that speech-input users who activate controls based on a visible label can interact with the control even when it has an accessible name override that isn't visually obvious.
+      
+      </p>
+      <p>
+        This helps ensure that speech-input users who activate controls based on a visible label can interact with the control even when it has an accessible name override that isn't visually obvious.
         Sighted users who use text-to-speech (e.g., screen readers) will also have a better experience if the text they hear (accessible name), matches the text they see on the screen (visible label).
       </p>
       <h4>Examples for accessible name must include complete visible label</h4>
@@ -357,16 +362,19 @@ function section() {
       <p>This is a Level A WCAG requirement. Read more at: <a href="https://www.w3.org/WAI/WCAG21/Understanding/label-in-name">Understanding Success Criterion 2.5.3: Label in Name</a></p>
     </details>
     <details>
-      <summary>Very long accessible name</summary>
+      <summary>Accessible name should be concise</summary>
+      <p>While there is no technical limitation to the accessible name, it is best practice to keep link text as concise possible.</p>
       <p>
-        Link text should never be paragraphs or even sentences long! It may frustrate screen reader users who must listen to the link text word by word.
+        Link text should never be paragraphs or even sentences long. This may frustate screen reader users who must listen to the link text word by word.
       </p>
+      <p>Use your own judgment!</p>
     </details>
     <details>
-      <summary>'link' text in accessible name</summary>
+      <summary>'link' text should not be excluded in accessible name</summary>
       <p>
-        Screen readers already announce links as a link so no need to include it as part of the accessible name. However, if "link" does describe the destination of the link (e.g. "Link best practices") feel free to ignore the flag.
+        Screen readers already announce links as a link so no need to include it as part of the accessible name. However, if "link" does describe the destination of the link (e.g. "Link best practices") it is acceptable.
       </p>
+      <p>Use your own judgment!</p>
     </details>
     <details>
       <summary>Name should be unique</summary>
@@ -376,12 +384,17 @@ function section() {
   </details>
   </h4>
   <h2>Table - Analysis of links on evaluated URL</h2>
-  <p id='column-2-note'>
-    Column 2 (Visible label) contains the visible label. If the cell is visually empty, it is possible the visible label exists but couldn't render in this report so please console log and review the visible label on the original page.
-  </p>
-  <p id='column-4-note'>
-    Column 4 (Log element) includes a button that logs the element in the browser console of the original page allowing further inspection.
-  </p>
+  <div aria-describedby="table-note">
+    <p id='column-1-note'>
+      Column 1 (Accessible name) conveys the programmatic name of the element exposed to the accessibility API. If it is explicitly hidden, it will be marked as <i>(hidden fro accessibility API</i>.
+    </p>
+    <p id='column-2-note'>
+      Column 2 (Visible label) conveys the visible label. If the visual label and the accessible name match, it will say <i>(same as accessible name</i>. If the cell is visually empty, it's likely the visual label rendered in the report. Log the element and review the visible label on the original page.
+    </p>
+    <p id='column-3-note'>
+      Column 4 (Log element) includes a button that logs the element in the browser console of the original page allowing further inspection.
+    </p>
+  </div>
   `;
 }
 
