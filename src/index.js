@@ -52,7 +52,7 @@ for (let i = 0; i < allLinks.length; i++) {
     linkElement,
   ]);
 }
-function containsAnyLetters(str) {
+export default function containsAnyLetters(str) {
   return /[a-zA-Z]/.test(str);
 }
 
