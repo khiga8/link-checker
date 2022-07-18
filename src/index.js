@@ -1,4 +1,12 @@
-require("../vendors/recursion.js");
+import {
+  containsAnyLetters,
+  isAriaHidden,
+  isHidden,
+  stripAndDowncaseText,
+  fetchAccessibleName,
+  fetchVisibleLabel,
+  removePunctuationAndEmoji,
+} from "./utils.js";
 
 let array = [];
 let map = new Map();
@@ -24,25 +32,27 @@ for (let i = 0; i < allLinks.length; i++) {
 
   let accessibleName = fetchAccessibleName(linkElement);
   const visibleLabel = fetchVisibleLabel(linkElement);
+  const visibleLabelText = visibleLabel.text;
+  const visibleLabelContent = visibleLabel.element.innerHTML;
 
-  const cleanVisibleLabel = stripAndDowncaseText(visibleLabel.innerText);
+  const cleanVisibleLabel = stripAndDowncaseText(visibleLabelText);
   const cleanAccessibleName = stripAndDowncaseText(accessibleName);
 
   let visibleLabelColumnData = `<i>(same as accessible name)</i>`;
 
   let styledAccessibleName;
-  if (accessibleName == "" && linkElement.hasAttribute("aria-hidden")) {
+  if (accessibleName == "" && isAriaHidden(linkElement)) {
     styledAccessibleName = `<i>(hidden from accessibility API)</i>`;
   } else {
     styledAccessibleName = `<b>${accessibleName}</b>`;
   }
   if (!cleanVisibleLabel) {
-    visibleLabelColumnData = visibleLabel.innerHTML;
+    visibleLabelColumnData = visibleLabelContent;
   } else if (cleanVisibleLabel && cleanVisibleLabel !== cleanAccessibleName) {
     if (linkElement.querySelector("svg") || linkElement.querySelector("img")) {
-      visibleLabelColumnData = visibleLabel.innerHTML;
+      visibleLabelColumnData = visibleLabelContent;
     } else {
-      visibleLabelColumnData = `<b>${visibleLabel.innerText}</b>`;
+      visibleLabelColumnData = `<b>${visibleLabelText}</b>`;
     }
   }
   array.push([
@@ -52,85 +62,6 @@ for (let i = 0; i < allLinks.length; i++) {
     linkElement,
   ]);
 }
-export default function containsAnyLetters(str) {
-  return /[a-zA-Z]/.test(str);
-}
-
-function removePunctuationAndEmoji(text) {
-  return text
-    .replace(/[.,/#!$%^&*;:{}=-_`~()+-]/g, "")
-    .replace(/s{2,}/g, " ")
-    .replace(
-      /([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g,
-      ""
-    );
-}
-
-function fetchVisibleLabel(element) {
-  const clonedLink = element.cloneNode(true);
-  element.insertAdjacentElement("afterend", clonedLink);
-  removeVisuallyHiddenElements(clonedLink);
-  const visibleLabel = clonedLink;
-  clonedLink.remove();
-
-  return visibleLabel;
-}
-
-function fetchAccessibleName(element) {
-  const clonedLink = element.cloneNode(true);
-  element.insertAdjacentElement("afterend", clonedLink);
-  clonedLink.querySelectorAll("noscript").forEach((noscript) => {
-    noscript.remove();
-  });
-  const accessibleName = getAccName(clonedLink) && getAccName(clonedLink).name;
-  clonedLink.remove();
-
-  return accessibleName;
-}
-
-/* Determines if link is visually hidden but accessible by screen readers. */
-function removeVisuallyHiddenElements(el) {
-  if (isScreenReaderOnly(el) || el.tagName === "NOSCRIPT") {
-    el.remove();
-  }
-
-  ["style", "height", "width"].forEach((attribute) =>
-    el.removeAttribute(attribute)
-  );
-
-  if (el.childNodes.length > 0) {
-    for (let child in el.childNodes) {
-      if (el.childNodes[child].nodeType == 1) {
-        removeVisuallyHiddenElements(el.childNodes[child]);
-      }
-    }
-  }
-}
-
-/* Determines if link is visually hidden but exposed in accessibility API. */
-function isScreenReaderOnly(element) {
-  const computedStyle = window.getComputedStyle(element);
-  return (
-    computedStyle.height === "1px" &&
-    computedStyle.position === "absolute" &&
-    computedStyle.clip === "rect(0px, 0px, 0px, 0px)"
-  );
-}
-
-/* Determines if link is visually hidden and not exposed to accessibility API. */
-function isHidden(element) {
-  return (
-    !element.offsetWidth ||
-    !element.offsetHeight ||
-    !element.getClientRects().length ||
-    window.getComputedStyle(element).visibility === "hidden" ||
-    window.getComputedStyle(element).display === "none"
-  );
-}
-
-function stripAndDowncaseText(text) {
-  return text.replace(/\s+/g, " ").toLowerCase().trim();
-}
 
 function giveRecommendation(
   cleanVisibleLabel,
@@ -139,7 +70,7 @@ function giveRecommendation(
 ) {
   let recommendation = [];
   if (cleanAccessibleName === "") {
-    if (!linkElement.hasAttribute("aria-hidden")) {
+    if (!isAriaHidden(linkElement)) {
       recommendation.push("[Missing accessible name]");
     }
   } else {
@@ -214,7 +145,6 @@ function createReport(array) {
     <table aria-describedby="table-note">
       <caption>Analysis of links on evaluated URL</caption>
       <thead width="20%">
-        <th>Row number</th>
         <th>Accessible name</th>
         <th width="20%">Visible label</th>
         <th width="40%">Flag ⚠️</th>
@@ -274,7 +204,6 @@ function createReport(array) {
         word-wrap: break-word;
       }
       tr:nth-child(even) {background-color: #f2f2f2;}
-
       details {
         border: 1px solid #aaa;
         border-radius: 4px;
