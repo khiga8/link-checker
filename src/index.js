@@ -115,7 +115,7 @@ function giveRecommendation(
     }
     if (map.get(cleanAccessibleName).size > 1) {
       recommendation.push(
-        "[Name is not unique]: there are other links with the same name, but different destination."
+        "[Name should be unique]: there are other links with the same name, but different destination."
       );
     }
   }
