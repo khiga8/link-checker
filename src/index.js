@@ -229,6 +229,15 @@ function createReport(array) {
         border-bottom: 1px solid #aaa;
         margin-bottom: .5em;
       }
+
+      footer {
+        display: flex;
+        justify-content: center;
+      }
+
+      footer li {
+        display: inline;
+      }
     </style>
   `
   );
@@ -236,7 +245,7 @@ function createReport(array) {
 
 function footer() {
   return `
-    <contentinfo>
+    <footer>
       <ul>
         <li>
           <a href="https://khiga8.github.io/link-checker/">Link Checker</a>
@@ -245,7 +254,7 @@ function footer() {
           <a href="https://github.com/khiga8/link-checker">GitHub Repo</a>
         </li>
       </ul>
-    </contentinfo>`
+    </footer>`
 }
 
 function section() {
