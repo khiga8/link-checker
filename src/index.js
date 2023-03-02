@@ -161,7 +161,12 @@ function createReport(array) {
   w.document.title = "Links on " + `"${document.title}"`;
   w.document.documentElement.setAttribute("lang", "en");
   w.document.body.innerHTML =
-    `<h1>${w.document.title}</h1> ` + "<main>" + section() + table + "</main>";
+    `<h1>${w.document.title}</h1>
+    <main>
+      ${section()}
+      ${table}
+    </main>
+    ${footer()}`;
 
   let buttons = w.document.querySelectorAll("button");
   for (let i = 0; i < buttons.length; i++) {
@@ -224,9 +229,32 @@ function createReport(array) {
         border-bottom: 1px solid #aaa;
         margin-bottom: .5em;
       }
+
+      footer {
+        display: flex;
+        justify-content: center;
+      }
+
+      footer li {
+        display: inline;
+      }
     </style>
   `
   );
+}
+
+function footer() {
+  return `
+    <footer>
+      <ul>
+        <li>
+          <a href="https://khiga8.github.io/link-checker/">Link Checker</a>
+        </li>
+        <li>
+          <a href="https://github.com/khiga8/link-checker">GitHub Repo</a>
+        </li>
+      </ul>
+    </footer>`
 }
 
 function section() {
