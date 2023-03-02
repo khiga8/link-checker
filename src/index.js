@@ -160,8 +160,7 @@ function createReport(array) {
 
   w.document.title = "Links on " + `"${document.title}"`;
   w.document.documentElement.setAttribute("lang", "en");
-  w.document.body.innerHTML =
-    `<h1>${w.document.title}</h1>
+  w.document.body.innerHTML = `<h1>${w.document.title}</h1>
     <main>
       ${section()}
       ${table}
@@ -254,7 +253,7 @@ function footer() {
           <a href="https://github.com/khiga8/link-checker">GitHub Repo</a>
         </li>
       </ul>
-    </footer>`
+    </footer>`;
 }
 
 function section() {
