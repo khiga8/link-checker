@@ -2,7 +2,7 @@
 
 This bookmarklet makes it easy for one to review the accessibility of links on a page.
 
-The goal of this bookmarklet is NOT to find every issue for you — this is impossible.
+The goal of this bookmarklet is NOT to find every issue for you, this is impossible.
 
 Assessing accessibility and usability always requires human judgment.
 
