@@ -8,6 +8,8 @@ on:
     types: [created, edited]
   discussion:
     types: [created, edited]
+  discussion_comment:
+    types: [created, edited]
 
 jobs:
   accessibility_alt_text_bot:
@@ -16,4 +18,4 @@ jobs:
     if: ${{ github.event.issue || github.event.pull_request || github.event.discussion }}
     steps:
       - name: Get action 'github/accessibility-alt-text-bot'
-        uses: github/accessibility-alt-text-bot@0a70e402166eaf83cd791a43d3c0e8bf459a9b41
+        uses: github/accessibility-alt-text-bot@487b4706eabf791430b74cbd0dc7fbf9fd8f4cb2
