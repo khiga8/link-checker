@@ -1,8 +1,8 @@
 # Link Checker
 
-This bookmarklet makes it easy for one to review the accessibility of links on a page.
+This bookmarklet makes it easier for one to review the accessibility of links on a page.
 
-The goal of this bookmarklet is NOT to find every issue for you, this is impossible.
+The goal of this bookmarklet is **NOT** to find every issue for you, this is not possible.
 
 Assessing accessibility and usability always requires human judgment.
 
